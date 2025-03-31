@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_2.xsd"
+             version="3.2">
+    <persistence-unit name="dbPU" >
+
+        <class>com.greenbuilding.demo.entity.AppUser</class>
+        <class>com.greenbuilding.demo.entity.Domain</class>
+        <class>com.greenbuilding.demo.entity.Employer</class>
+        <class>com.greenbuilding.demo.entity.Formation</class>
+        <class>com.greenbuilding.demo.entity.FormationParticipant</class>
+        <class>com.greenbuilding.demo.entity.Participant</class>
+        <class>com.greenbuilding.demo.entity.Profil</class>
+        <class>com.greenbuilding.demo.entity.Role</class>
+        <class>com.greenbuilding.demo.entity.Structure</class>
+        <class>com.greenbuilding.demo.entity.Trainer</class>
+        <properties>
+            <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver" />
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/gestion_formation" />
+            <property name="jakarta.persistence.jdbc.user" value="postgres" />
+            <property name="jakarta.persistence.jdbc.password" value="password" />
+
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="update" />
+
+            <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.format_sql" value="true" />
+        </properties>
+    </persistence-unit>
+</persistence>
