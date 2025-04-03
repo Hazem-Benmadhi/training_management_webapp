@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 
 @WebServlet("/formations")
@@ -68,7 +69,12 @@ public class FormationServlet extends HttpServlet {
     }
 
     public void showNewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("domains",  domainDAO.findAll());
+        DomainDAO domainDAO = new DomainDAO();
+        List<Domain> domains = domainDAO.findAll();
+
+        request.setAttribute("domains",  domains);
+        System.out.println("Domains found: " + domains);
+
         request.setAttribute("trainers",  trainerDAO.findAll());
         request.getRequestDispatcher("addFormation.jsp").forward(request,response);
     }

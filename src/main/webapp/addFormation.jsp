@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html>
 <head>
   <title>Formation Form</title>
@@ -47,11 +48,19 @@
       <div class="mb-3">
         <label for="idDomain" class="form-label">Domain</label>
         <select class="form-control" name="idDomain" id="idDomain" required>
-          <c:forEach var="domain" items="${domains}">
-            <option value="${domain.id}" ${domain.id == formation.iddomain.id ? 'selected' : ''}>
-                ${domain.name}
-            </option>
-          </c:forEach>
+          <c:choose>
+            <c:when test="${not empty domains}">
+              <c:forEach var="domain" items="${domains}">
+                <option value="${domain.id}"
+                  ${not empty formation.iddomain and domain.id == formation.iddomain.id ? 'selected' : ''}>
+                    ${domain.libelle}
+                </option>
+              </c:forEach>
+            </c:when>
+            <c:otherwise>
+              <option disabled>No domains available</option>
+            </c:otherwise>
+          </c:choose>
         </select>
       </div>
 
@@ -59,13 +68,22 @@
       <div class="mb-3">
         <label for="idTrainer" class="form-label">Trainer</label>
         <select class="form-control" name="idTrainer" id="idTrainer" required>
-          <c:forEach var="trainer" items="${trainers}">
-            <option value="${trainer.id}" ${trainer.id == formation.idtrainer.id ? 'selected' : ''}>
-                ${trainer.name}
-            </option>
-          </c:forEach>
+          <c:choose>
+            <c:when test="${not empty trainers}">
+              <c:forEach var="trainer" items="${trainers}">
+                <option value="${trainer.id}"
+                  ${not empty formation.idtrainer and trainer.id == formation.iddomain.id ? 'selected' : ''}>
+                    ${trainer.firstName}
+                </option>
+              </c:forEach>
+            </c:when>
+            <c:otherwise>
+              <option disabled>No Trainer available</option>
+            </c:otherwise>
+          </c:choose>
         </select>
       </div>
+
 
       <button type="submit" class="btn btn-danger">Save</button>
     </form>

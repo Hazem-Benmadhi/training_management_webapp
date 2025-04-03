@@ -34,13 +34,13 @@ public class Participant {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "idstructure", nullable = false)
+    @JoinColumn(name = "idstructure", nullable = true) // original: nullable = false
     private com.greenbuilding.demo.entity.Structure idstructure;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "idprofil", nullable = false)
+    @JoinColumn(name = "idprofil", nullable = true) // original: nullable = false
     private com.greenbuilding.demo.entity.Profil idprofil;
 
     @Size(max = 255)

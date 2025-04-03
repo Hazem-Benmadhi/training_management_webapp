@@ -35,9 +35,10 @@ public class Trainer {
     @Column(name = "email", nullable = false)
     private String email;
 
+    @Size(max = 8)
     @NotNull
     @Column(name = "tel", nullable = false)
-    private Integer tel;
+    private String tel;
 
     @Size(max = 20)
     @Column(name = "type", length = 20)

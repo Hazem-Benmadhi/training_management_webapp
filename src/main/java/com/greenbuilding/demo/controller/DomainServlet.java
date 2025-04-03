@@ -2,7 +2,6 @@ package com.greenbuilding.demo.controller;
 
 import com.greenbuilding.demo.dao.DomainDAO;
 import com.greenbuilding.demo.entity.Domain;
-import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -10,9 +9,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet("/domains")
 public class DomainServlet extends HttpServlet {
+
     private DomainDAO domainDAO;
 
     @Override
@@ -33,16 +34,10 @@ public class DomainServlet extends HttpServlet {
                     showNewForm(request, response);
                     break;
                 case "add":
-                    addEditDomain(request, response);
-
-                    break;
-                case "edit":
-                    showEditForm(request, response);
-
+                    addDomain(request, response);
                     break;
                 case "delete":
                     deleteDomain(request, response);
-
                     break;
                 default:
                     listDomain(request, response);
@@ -54,42 +49,25 @@ public class DomainServlet extends HttpServlet {
 
     private void listDomain(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setAttribute("domains", domainDAO.findAll());
-        RequestDispatcher dispatcher = request.getRequestDispatcher("domains.jsp");
-        dispatcher.forward(request, response);
+        request.getRequestDispatcher("domains.jsp").forward(request, response);
     }
 
     public void showNewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        RequestDispatcher dispatcher = request.getRequestDispatcher("addDomain.jsp");
-        dispatcher.forward(request,response);
-    }
-
-    public void addEditDomain(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Domain domain;
-        String idDomain = request.getParameter("id");
-        if(idDomain!=null && !idDomain.isEmpty()){
-            int id = Integer.parseInt(idDomain);
-            domain = domainDAO.findById(id);
-        }
-        else {
-            domain= new Domain();
-        }
-        domain.setLibelle(request.getParameter("libelle"));
-
-        domainDAO.saveOrUpdate(domain);
-        response.sendRedirect("domains?action=list");
-    }
-
-    public void showEditForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int idD = Integer.parseInt(request.getParameter("id"));
-        Domain domain = domainDAO.findById(idD);
-        request.setAttribute("domain",domain);
         request.getRequestDispatcher("addDomain.jsp").forward(request,response);
     }
 
+    public void addDomain(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Domain domain = new Domain();
+        domain.setLibelle(request.getParameter("libelle"));
+
+        domainDAO.save(domain);
+        response.sendRedirect("domains?action=list");
+    }
+
     public void deleteDomain(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        int id= Integer.parseInt(request.getParameter("id"));
+        int id = Integer.parseInt(request.getParameter("id"));
         domainDAO.delete(id);
-        response.sendRedirect("Domains?action=list");
+        response.sendRedirect("domains?action=list");
     }
 
 }

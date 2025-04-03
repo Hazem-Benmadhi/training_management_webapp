@@ -24,6 +24,12 @@
                 <li class="nav-item">
                     <a class="nav-link" href="formations">Formation</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="domains">Domain</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="trainers">Trainer</a>
+                </li>
             </ul>
         </div>
     </div>

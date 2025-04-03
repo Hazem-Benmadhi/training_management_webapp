@@ -2,7 +2,7 @@ package com.greenbuilding.demo.api;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Persistence;
-
+import java.lang.reflect.Method;
 import java.util.List;
 
 public abstract class BaseDAO<T, ID> {
@@ -15,14 +15,23 @@ public abstract class BaseDAO<T, ID> {
         this.entityManager = Persistence.createEntityManagerFactory("dbPU").createEntityManager();
     }
 
-    public void saveOrUpdate(T entity, ID id) {
-        entityManager.getTransaction().begin();
-        if (id == null) {
-            entityManager.persist(entity);
-        } else {
-            entityManager.merge(entity);
+    public void saveOrUpdate(T entity) {
+        try {
+            Method getIdMethod = entityClass.getMethod("getId");
+            Object id = getIdMethod.invoke(entity);
+            System.out.println("Entity ID: " + id);
+
+            entityManager.getTransaction().begin();
+            if (id == null) {
+                entityManager.persist(entity);
+            } else {
+                entityManager.merge(entity);
+            }
+            entityManager.getTransaction().commit();
+        } catch (Exception e) {
+            entityManager.getTransaction().rollback();
+            throw new RuntimeException("Error saving or updating entity", e);
         }
-        entityManager.getTransaction().commit();
     }
 
     public T findById(ID id) {

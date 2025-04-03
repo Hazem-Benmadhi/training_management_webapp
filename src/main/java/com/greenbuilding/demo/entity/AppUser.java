@@ -1,6 +1,7 @@
 package com.greenbuilding.demo.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.ColumnDefault;
@@ -22,18 +23,16 @@ public class AppUser {
 
     @Size(max = 255)
     @NotNull
-    @Column(name = "login", nullable = false)
+    @Column(name = "login", nullable = false, unique = true)
     private String login;
 
     @Size(max = 255)
     @NotNull
+    @NotBlank(message = "error motepass")
     @Column(name = "password", nullable = false)
     private String password;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "idrole", nullable = false)
-    private com.greenbuilding.demo.entity.Role idrole;
-
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private Role role;
 }
