@@ -11,6 +11,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data @NoArgsConstructor @AllArgsConstructor
@@ -18,11 +20,9 @@ import java.time.LocalDate;
 public class Formation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @ColumnDefault("nextval('formation_id_seq')")
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Size(max = 255)
     @NotNull
     @Column(name = "title", nullable = false)
     private String title;
@@ -43,12 +43,16 @@ public class Formation {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "iddomain", nullable = false)
-    private Domain iddomain;
+    private Domain domain;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "idtrainer", nullable = false)
-    private com.greenbuilding.demo.entity.Trainer idtrainer;
+    private Trainer trainer;
+
+    @ManyToMany(mappedBy = "formations")
+    private Set<Participant> participants = new HashSet<>();
+
 
 }

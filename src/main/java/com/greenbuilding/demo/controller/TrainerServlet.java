@@ -2,7 +2,9 @@ package com.greenbuilding.demo.controller;
 
 import com.greenbuilding.demo.dao.EmployerDAO;
 import com.greenbuilding.demo.dao.TrainerDAO;
+import com.greenbuilding.demo.entity.Employer;
 import com.greenbuilding.demo.entity.Trainer;
+import com.greenbuilding.demo.entity.TrainerType;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -10,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.List;
 
 @WebServlet("/trainers")
 public class TrainerServlet extends HttpServlet {
@@ -55,39 +56,78 @@ public class TrainerServlet extends HttpServlet {
     }
 
     private void listTrainers(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<Trainer> trainers = trainerDAO.findAll();
-        request.setAttribute("trainers", trainers);
-        System.out.println("list trainers" + trainers);
-        request.getRequestDispatcher("trainers.jsp").forward(request, response);
+        request.setAttribute("trainers", trainerDAO.findAll());
+        request.setAttribute("pageContent", "trainer/list.jsp");
+        request.setAttribute("pageTitle", "Trainer Management");
+        request.getRequestDispatcher("layout.jsp").forward(request, response);
+
     }
 
     private void showNewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//        request.setAttribute("employers", employerDAO.findAll());
-        request.getRequestDispatcher("addTrainer.jsp").forward(request, response);
+        request.setAttribute("employers", employerDAO.findAll());
+        request.setAttribute("trainerType", TrainerType.values());
+        request.getRequestDispatcher("trainer/form.jsp").forward(request, response);
     }
 
     private void showEditForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int idT = Integer.parseInt(request.getParameter("id"));
         request.setAttribute("trainer", trainerDAO.findById(idT));
-//        request.setAttribute("employers", employerDAO.findAll());
-        request.getRequestDispatcher("addTrainer.jsp").forward(request, response);
+        request.setAttribute("employers", employerDAO.findAll());
+        request.setAttribute("trainerType", TrainerType.values());
+        request.getRequestDispatcher("trainer/form.jsp").forward(request, response);
     }
 
     private void addEditTrainer(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Trainer trainer;
-        String idTrainer = request.getParameter("id");
+        int id = request.getParameter("id") != null && !request.getParameter("id").isEmpty()
+                ? Integer.parseInt(request.getParameter("id")) : 0;
 
-        if (idTrainer != null && !idTrainer.isEmpty()) {
-            int id = Integer.parseInt(idTrainer);
-            trainer = trainerDAO.findById(id);
-        } else {
-            trainer = new Trainer();
-        }
+        Trainer trainer = (id != 0) ? trainerDAO.findById(id) : new Trainer();
 
         trainer.setFirstName(request.getParameter("firstName"));
         trainer.setLastName(request.getParameter("lastName"));
         trainer.setEmail(request.getParameter("email"));
         trainer.setTel(request.getParameter("tel"));
+
+        String typeParam = request.getParameter("type");
+        try {
+            trainer.setType(typeParam);
+        } catch (IllegalArgumentException e) {
+            request.setAttribute("error", e.getMessage());
+            request.setAttribute("trainer", trainer);
+            request.getRequestDispatcher("trainer/form.jsp").forward(request, response);
+            return;
+        }
+
+        // Manage employer uniquely if type = EXTERNE
+        if ("EXTERNE".equalsIgnoreCase(typeParam)) {
+            String employerIdParam = request.getParameter("employerId");
+            if (employerIdParam != null && !employerIdParam.isEmpty()) {
+                try {
+                    Employer employer = employerDAO.findById(Integer.parseInt(employerIdParam));
+                    if (employer != null) {
+                        trainer.setEmployer(employer);
+                    } else {
+                        request.setAttribute("error", "Employer not found.");
+                        request.setAttribute("trainer", trainer);
+                        request.getRequestDispatcher("trainer/form.jsp").forward(request, response);
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    request.setAttribute("error", "ID employer invalid.");
+                    request.setAttribute("trainer", trainer);
+                    request.getRequestDispatcher("trainer/form.jsp").forward(request, response);
+                    return;
+                }
+            } else {
+                request.setAttribute("error", "Employer required for EXTERNAL trainer.");
+                request.setAttribute("trainer", trainer);
+                request.getRequestDispatcher("trainer/form.jsp").forward(request, response);
+                return;
+            }
+        } else {
+            // If INTERNE, employer no more keep it
+            trainer.setEmployer(null);
+        }
 
         trainerDAO.saveOrUpdate(trainer);
         response.sendRedirect("trainers?action=list");

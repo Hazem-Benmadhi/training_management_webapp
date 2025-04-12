@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.List;
 
 @WebServlet("/domains")
 public class DomainServlet extends HttpServlet {
@@ -49,11 +48,13 @@ public class DomainServlet extends HttpServlet {
 
     private void listDomain(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setAttribute("domains", domainDAO.findAll());
-        request.getRequestDispatcher("domains.jsp").forward(request, response);
+        request.setAttribute("pageContent", "domain/list.jsp");
+        request.setAttribute("pageTitle", "Domain Management");
+        request.getRequestDispatcher("layout.jsp").forward(request, response);
     }
 
     public void showNewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("addDomain.jsp").forward(request,response);
+        request.getRequestDispatcher("domain/form.jsp").forward(request,response);
     }
 
     public void addDomain(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

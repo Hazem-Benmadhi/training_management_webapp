@@ -14,13 +14,11 @@ import lombok.NoArgsConstructor;
 public class Employer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @ColumnDefault("nextval('employer_id_seq')")
-    @Column(name = "id", nullable = false)
+    @Column(name = "id", nullable = false, unique = true, updatable = false)
     private Integer id;
 
-    @Size(max = 255)
     @NotNull
     @Column(name = "name", nullable = false)
-    private String name;
+    private String nameEmployer;
 
 }

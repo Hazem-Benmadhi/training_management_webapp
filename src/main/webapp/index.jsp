@@ -9,7 +9,7 @@
 <h1><%= "Inventory Management" %>
 </h1>
 <br/>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-light" >
     <div class="container-fluid">
         <a class="navbar-brand">Management</a>
 
@@ -19,7 +19,16 @@
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <ul class="navbar-nav">
                 <li class="nav-item">
+                    <a class="nav-link" href="employers">Employers</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="trainers">Trainer</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="participants">Participant</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="registration">Registration</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="formations">Formation</a>
@@ -27,9 +36,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="domains">Domain</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="trainers">Trainer</a>
-                </li>
+
             </ul>
         </div>
     </div>
