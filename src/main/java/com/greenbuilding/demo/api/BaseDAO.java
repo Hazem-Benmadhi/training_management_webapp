@@ -5,6 +5,7 @@ import jakarta.persistence.Persistence;
 import java.lang.reflect.Method;
 import java.util.List;
 
+
 public abstract class BaseDAO<T, ID> {
 
     protected EntityManager entityManager;
@@ -30,7 +31,7 @@ public abstract class BaseDAO<T, ID> {
             entityManager.getTransaction().commit();
         } catch (Exception e) {
             entityManager.getTransaction().rollback();
-            throw new RuntimeException("Error saving or updating entity", e);
+            throw new RuntimeException("Error saving or updating " + entityClass.getSimpleName(), e);
         }
     }
 
@@ -43,11 +44,16 @@ public abstract class BaseDAO<T, ID> {
     }
 
     public void delete(ID id) {
-        T entity = entityManager.find(entityClass, id);
-        if (entity != null) {
-            entityManager.getTransaction().begin();
-            entityManager.remove(entity);
-            entityManager.getTransaction().commit();
+        try {
+            T entity = entityManager.find(entityClass, id);
+            if (entity != null) {
+                entityManager.getTransaction().begin();
+                entityManager.remove(entity);
+                entityManager.getTransaction().commit();
+            }
+        } catch (Exception e) {
+            entityManager.getTransaction().rollback();
+            throw new RuntimeException("Error deleting " + entityClass.getSimpleName(), e);
         }
     }
 }

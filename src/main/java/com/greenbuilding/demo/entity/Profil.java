@@ -1,12 +1,12 @@
 package com.greenbuilding.demo.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 
 @Entity
@@ -14,13 +14,15 @@ import org.hibernate.annotations.ColumnDefault;
 @Table(name = "profil")
 public class Profil {
     @Id
-    @ColumnDefault("nextval('profil_id_seq')")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
     @Size(max = 255)
     @NotNull
+    @NotBlank(message = "libelle is mandatory")
     @Column(name = "libelle", nullable = false)
     private String libelle;
 
 }
+

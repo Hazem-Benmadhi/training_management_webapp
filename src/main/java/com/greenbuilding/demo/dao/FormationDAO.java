@@ -3,6 +3,7 @@ package com.greenbuilding.demo.dao;
 import com.greenbuilding.demo.api.BaseDAO;
 import com.greenbuilding.demo.entity.Formation;
 
+import java.util.Collections;
 import java.util.List;
 
 public class FormationDAO extends BaseDAO<Formation, Integer> {
@@ -25,15 +26,6 @@ public class FormationDAO extends BaseDAO<Formation, Integer> {
 //        entityManager.getTransaction().commit();
 //    }
 //
-    public List<Formation> getFormationsByIdParticipant(int IdParticipant) {
-        try {
-            return entityManager.createQuery("select f from Formation f join FormationParticipant fp on f.id = fp.idformation.id where fp.idparticipant.id =: IdParticipant", Formation.class)
-                    .setParameter("IdParticipant", IdParticipant)
-                    .getResultList();
-        } catch (Exception e) {
-            return null;
-        }
-    }
 //
 //    public Formation findById(int id) {
 //        return entityManager.find(Formation.class, id);
@@ -51,5 +43,18 @@ public class FormationDAO extends BaseDAO<Formation, Integer> {
 //            entityManager.getTransaction().commit();
 //        }
 //    }
+
+    public List<Formation> getFormationsByIdParticipant(int IdParticipant) {
+    try {
+        return entityManager.createQuery(
+                        "SELECT f FROM Formation f JOIN f.participants p WHERE p.id = :IdParticipant",
+                        Formation.class)
+                .setParameter("IdParticipant", IdParticipant)
+                .getResultList();
+    } catch (Exception e) {
+        e.printStackTrace(); // Optional: for debugging
+        return Collections.emptyList(); // Safer than null
+    }
+}
 
 }

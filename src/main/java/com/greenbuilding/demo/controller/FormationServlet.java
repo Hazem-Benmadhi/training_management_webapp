@@ -65,18 +65,16 @@ public class FormationServlet extends HttpServlet {
 
     private void listFormations(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setAttribute("formations", formationDAO.findAll());
-        request.getRequestDispatcher("formations.jsp").forward(request, response);
+        request.setAttribute("pageContent", "formation/list.jsp");
+        request.setAttribute("pageTitle", "Formation Management");
+        request.getRequestDispatcher("layout.jsp").forward(request, response);
+
     }
 
     public void showNewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        DomainDAO domainDAO = new DomainDAO();
-        List<Domain> domains = domainDAO.findAll();
-
-        request.setAttribute("domains",  domains);
-        System.out.println("Domains found: " + domains);
-
+        request.setAttribute("domains",  domainDAO.findAll());
         request.setAttribute("trainers",  trainerDAO.findAll());
-        request.getRequestDispatcher("addFormation.jsp").forward(request,response);
+        request.getRequestDispatcher("formation/form.jsp").forward(request,response);
     }
 
     public void showEditForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -84,7 +82,7 @@ public class FormationServlet extends HttpServlet {
         request.setAttribute("formation",formationDAO.findById(idF));
         request.setAttribute("domains",domainDAO.findAll());
         request.setAttribute("trainers",trainerDAO.findAll());
-        request.getRequestDispatcher("addFormation.jsp").forward(request,response);
+        request.getRequestDispatcher("formation/list.jsp").forward(request,response); //****
     }
 
     public void addEditFormation(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -104,8 +102,8 @@ public class FormationServlet extends HttpServlet {
         formation.setDate(LocalDate.parse(request.getParameter("date")));
         formation.setDuration(Integer.parseInt(request.getParameter("duration")));
         formation.setBudget(Double.parseDouble(request.getParameter("budget")));
-        formation.setIddomain(domain);
-        formation.setIdtrainer(trainer);
+        formation.setDomain(domain);
+        formation.setTrainer(trainer);
 
         formationDAO.saveOrUpdate(formation);
         response.sendRedirect("formations?action=list");
