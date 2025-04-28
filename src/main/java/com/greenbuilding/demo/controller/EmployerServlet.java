@@ -1,15 +1,16 @@
 package com.greenbuilding.demo.controller;
 
 import com.greenbuilding.demo.dao.EmployerDAO;
+import com.greenbuilding.demo.entity.AppUser;
 import com.greenbuilding.demo.entity.Employer;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
-import java.util.List;
 
 @WebServlet("/employers")
 public class EmployerServlet extends HttpServlet {
@@ -21,13 +22,29 @@ public class EmployerServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action") == null ? "list" : request.getParameter("action");
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doGet(request, response);
+    }
 
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+        AppUser user = (AppUser) session.getAttribute("user");
+        boolean isAdmin = "admin".equals(user.getRole().toString());
+        if (!isAdmin) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Admin access required");
+            return;
+        }
+
+        String action = request.getParameter("action") == null ? "list" : request.getParameter("action");
         try {
             switch (action) {
-                case "new":
-                    showNewForm(request, response);
+                case "add":
+                    addEmployer(request, response);
                     break;
                 case "delete":
                     deleteEmployer(request, response);
@@ -42,36 +59,19 @@ public class EmployerServlet extends HttpServlet {
         }
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        addOrUpdateEmployer(request, response);
-    }
-
     private void listEmployers(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<Employer> employers = employerDAO.findAll();
-        request.setAttribute("employers", employers);
-        request.getRequestDispatcher("employers.jsp").forward(request, response);
+        request.setAttribute("employers", employerDAO.findAll());
+        request.setAttribute("pageContent", "employer/list.jsp");
+        request.setAttribute("pageTitle", "Employer Management");
+        request.getRequestDispatcher("layout.jsp").forward(request, response);
     }
 
-    private void showNewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("employer", new Employer());
-        request.getRequestDispatcher("addEmployer.jsp").forward(request, response);
-    }
 
-    private void addOrUpdateEmployer(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String idParam = request.getParameter("id");
-        Employer employer;
+    private void addEmployer(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Employer employer = new Employer();
+        employer.setNameEmployer(request.getParameter("employerName"));
 
-        if (idParam != null && !idParam.isEmpty()) {
-            int id = Integer.parseInt(idParam);
-            employer = employerDAO.findById(id);
-        } else {
-            employer = new Employer();
-        }
-
-        employer.setNameEmployer(request.getParameter("nameEmployer"));
-
-        employerDAO.saveOrUpdate(employer);
+        employerDAO.save(employer);
         response.sendRedirect("employers?action=list");
     }
 

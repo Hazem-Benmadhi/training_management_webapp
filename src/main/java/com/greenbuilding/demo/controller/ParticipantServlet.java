@@ -2,18 +2,20 @@ package com.greenbuilding.demo.controller;
 
 import com.greenbuilding.demo.dao.FormationDAO;
 import com.greenbuilding.demo.dao.ParticipantDAO;
-import com.greenbuilding.demo.dao.ProfilDAO;
+import com.greenbuilding.demo.dao.ProfileDAO;
 import com.greenbuilding.demo.dao.RegistrationDAO;
 import com.greenbuilding.demo.entity.*;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-
 
 @WebServlet("/participants")
 public class ParticipantServlet extends HttpServlet {
@@ -21,50 +23,54 @@ public class ParticipantServlet extends HttpServlet {
     private ParticipantDAO participantDAO;
     private RegistrationDAO registrationDAO;
     private FormationDAO formationDAO;
-    private ProfilDAO profilDAO;
+    private ProfileDAO profileDAO;
 
     @Override
     public void init(){
         participantDAO = new ParticipantDAO();
         registrationDAO = new RegistrationDAO();
         formationDAO = new FormationDAO();
-        profilDAO = new ProfilDAO();
+        profileDAO = new ProfileDAO();
     }
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         doGet(request, response);
     }
 
     @Override
     protected void doGet(@org.jetbrains.annotations.NotNull HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+        AppUser user = (AppUser) session.getAttribute("user");
+        boolean isAdmin = "admin".equals(user.getRole().toString());
+        boolean isSimple = "simple".equals(user.getRole().toString());
+
+        if (!isAdmin && !isSimple) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied: Admin or Simple User role required");
+            return;
+        }
+
         String action = request.getParameter("action") == null ? "list" : request.getParameter("action");
         try {
             switch (action) {
                 case "details":
                     showParticipantDetails(request, response);
                     break;
-//                case "register":
-//                    registerToFormation(request, response);
-//                    break;
                 case "unregister":
                     unregisterFromFormation(request, response);
                     break;
                 case "confirmRegister":
                     confirmRegister(request, response);
                     break;
-//                case "new":
-//                    showNewForm(request, response);
-//                    break;
                 case "add":
                     addEditParticipant(request, response);
                     break;
                 case "edit":
-                    if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-                        getParticipantJson(request, response);
-                    } else {
-                        // Fallback for non-AJAX requests
-                        showEditForm(request, response);
-                    }
+                    getParticipantJson(request, response);
                     break;
                 case "delete":
                     deleteParticipant(request, response);
@@ -77,55 +83,75 @@ public class ParticipantServlet extends HttpServlet {
         }
     }
 
-    private void listParticipants(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<Participant> participants = participantDAO.findAll();
-        List<Formation> formations = formationDAO.findAll();
-        request.setAttribute("defaultProfiles", DefaultProfiles.values());
-        request.setAttribute("participants", participants);
-        request.setAttribute("formations", formations);
+    private void listParticipants(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        List<String> profiles = new ArrayList<>();
+        for (Profil prof : profileDAO.findAll()){
+            profiles.add(prof.getLibelle());
+        }
+
+        request.setAttribute("formationCounts", participantDAO.getFormationCounts());
+        request.setAttribute("existingProfiles", profiles);
+        request.setAttribute("participants", participantDAO.findAll());
+        request.setAttribute("formations", formationDAO.findAll());
         request.setAttribute("pageContent", "participant/list.jsp");
         request.setAttribute("pageTitle", "Participant Management");
         request.getRequestDispatcher("layout.jsp").forward(request, response);
     }
 
-//    public void showNewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//        request.setAttribute("profils", profilDAO.findAll());
-//        request.setAttribute("defaultProfiles", DefaultProfiles.values());
-//        request.getRequestDispatcher("participant/form.jsp").forward(request,response);
+//    private void showParticipantDetails(HttpServletRequest request, HttpServletResponse response)
+//            throws ServletException, IOException {
+//        Participant participants = participantDAO.findById(Integer.parseInt(request.getParameter("id")));
+//        request.setAttribute("participants", participants);
+//        request.getRequestDispatcher("participant/details.jsp").forward(request, response);
 //    }
+private void showParticipantDetails(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    try {
+        int participantId = Integer.parseInt(request.getParameter("id"));
 
-    public void showEditForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        request.setAttribute("participant", participantDAO.findById(id));
-        request.setAttribute("profils", profilDAO.findAll());
-        request.getRequestDispatcher("participant/form.jsp").forward(request,response);
-    }
-
-    private void showParticipantDetails(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Participant participants = participantDAO.findById(Integer.parseInt(request.getParameter("id")));
-        request.setAttribute("participants", participants);
-        request.getRequestDispatcher("participant/details.jsp").forward(request, response);
-    }
-
-    public void addEditParticipant(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Participant participant;
-        String idP = request.getParameter("id");
-        if(idP!=null && !idP.isEmpty()){
-            int id = Integer.parseInt(idP);
-            participant = participantDAO.findById(id);
+        // Get participant data
+        Participant participant = participantDAO.findById(participantId);
+        if (participant == null) {
+            request.getSession().setAttribute("errorMessage", "Participant not found.");
+            response.sendRedirect("participants");
+            return;
         }
-        else {
-            participant = new Participant();
-        }
+
+        // Get formations the participant is enrolled in
+        List<Formation> enrolledFormations = formationDAO.getFormationsByParticipantId(participantId);
+
+        request.setAttribute("participant", participant);
+        request.setAttribute("enrolledFormations", enrolledFormations);
+
+        // Forward to details page
+        request.setAttribute("pageContent", "/participant/details.jsp");
+        request.getRequestDispatcher("layout.jsp").forward(request, response);
+    } catch (NumberFormatException e) {
+        request.getSession().setAttribute("errorMessage", "Invalid participant ID.");
+        response.sendRedirect("participants");
+    } catch (Exception e) {
+        request.getSession().setAttribute("errorMessage", "Error loading participant details: " + e.getMessage());
+        response.sendRedirect("participants");
+    }
+}
+
+
+    public void addEditParticipant(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        int id = request.getParameter("id") != null && !request.getParameter("id").isEmpty()
+                ? Integer.parseInt(request.getParameter("id")) : 0;
+
+        Participant participant = (id != 0) ? participantDAO.findById(id) : new Participant();
+
         participant.setFirstName(request.getParameter("firstName"));
         participant.setLastName(request.getParameter("lastName"));
         participant.setEmail(request.getParameter("email"));
         participant.setTel(request.getParameter("tel"));
 
         // Set structure from enum
-        String structureStr = request.getParameter("structure");
-        if (structureStr != null && !structureStr.isEmpty()) {
-            participant.setStructure(Structure.valueOf(structureStr));
+        String struct = request.getParameter("structure");
+        if (struct != null && !struct.isEmpty()) {
+            participant.setStructure(Structure.valueOf(struct));
         }
 
         String profilLibelle = request.getParameter("profilLibelle");
@@ -134,13 +160,13 @@ public class ParticipantServlet extends HttpServlet {
         String finalLibelle = profilLibelle.equals("OTHER") ? customProfil : profilLibelle;
 
         // Check if profil exists already
-        Profil profil = profilDAO.findByLibelle(finalLibelle);
+        Profil profil = profileDAO.findByLibelle(finalLibelle);
 
         // If not, create it
         if (profil == null) {
             profil = new Profil();
             profil.setLibelle(finalLibelle);
-            profilDAO.saveOrUpdate(profil);
+            profileDAO.saveOrUpdate(profil);
         }
 
         participant.setProfil(profil);
@@ -148,46 +174,54 @@ public class ParticipantServlet extends HttpServlet {
         response.sendRedirect("participants?action=list");
     }
 
-    // display register form
-//    public void registerToFormation(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//        request.setAttribute("participantId", Integer.parseInt(request.getParameter("id")));
-//        request.setAttribute("formations", registrationDAO.getAvailableFormations());   // Retrieve available formations
-//        request.getRequestDispatcher("register.jsp").forward(request, response);
-//    }
-
-    private void unregisterFromFormation(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int participantId = Integer.parseInt(request.getParameter("participantId"));
-        int formationId = Integer.parseInt(request.getParameter("formationId"));
-
-        registrationDAO.unregisterParticipant(participantId, formationId);
-        response.sendRedirect("participants?action=details");
-    }
-
-//    private void confirmRegister(HttpServletRequest request, HttpServletResponse response)
+    // Still not working
+//    private void unregisterFromFormation(HttpServletRequest request, HttpServletResponse response)
 //            throws ServletException, IOException {
-//        try {
-//            int participantId = Integer.parseInt(request.getParameter("participantId"));
-//            int formationId = Integer.parseInt(request.getParameter("formationId"));
+//        int participantId = Integer.parseInt(request.getParameter("participantId"));
+//        int formationId = Integer.parseInt(request.getParameter("formationId"));
 //
-//            registrationDAO.registerParticipant(participantId, formationId);
-//
-//            // For AJAX requests, you might want to return JSON
-//            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-//                response.setContentType("application/json");
-//                response.getWriter().write("{\"status\":\"success\"}");
-//            } else {
-//                response.sendRedirect("participants?action=list");
-//            }
-//        } catch (Exception e) {
-//            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-//                response.setContentType("application/json");
-//                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//                response.getWriter().write("{\"status\":\"error\", \"message\":\"" + e.getMessage() + "\"}");
-//            } else {
-//                throw new ServletException(e);
-//            }
-//        }
+//        registrationDAO.unregisterParticipant(participantId, formationId);
+//        response.sendRedirect("participants?action=details");
 //    }
+    private void unregisterFromFormation(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            int participantId = Integer.parseInt(request.getParameter("participantId"));
+            int formationId = Integer.parseInt(request.getParameter("formationId"));
+
+
+            // Get participant and formation to verify they exist
+            Participant participant = participantDAO.findById(participantId);
+            Formation formation = formationDAO.findById(formationId);
+
+            if (participant == null || formation == null) {
+                request.getSession().setAttribute("errorMessage", "Participant or formation not found.");
+                response.sendRedirect("participants");
+                return;
+            }
+
+            // Remove the registration
+            boolean success = registrationDAO.removeParticipantFromFormation(participant, formation);
+
+            if (success) {
+                request.getSession().setAttribute("successMessage",
+                        "Successfully unregistered " + participant.getFirstName() + " " +
+                                participant.getLastName() + " from " + formation.getTitle());
+            } else {
+                request.getSession().setAttribute("errorMessage", "Failed to unregister from formation.");
+            }
+
+            // Redirect back to participant details
+            response.sendRedirect("participants?action=details&id=" + participantId);
+
+        } catch (NumberFormatException e) {
+            request.getSession().setAttribute("errorMessage", "Invalid participant or formation ID.");
+            response.sendRedirect("participants");
+        } catch (Exception e) {
+            request.getSession().setAttribute("errorMessage", "Error unregistering participant: " + e.getMessage());
+            response.sendRedirect("participants");
+        }
+    }
 
     private void confirmRegister(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -195,35 +229,25 @@ public class ParticipantServlet extends HttpServlet {
             int participantId = Integer.parseInt(request.getParameter("participantId"));
             int formationId = Integer.parseInt(request.getParameter("formationId"));
 
-            registrationDAO.registerParticipant(participantId, formationId);
-
-            // Check if it's an AJAX request
-            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                response.getWriter().write("{\"success\": true, \"message\": \"Registration successful\"}");
-                return;
+            if (!registrationDAO.isRegistered(formationId, participantId)) {
+                registrationDAO.registerParticipant(participantId, formationId);
+                request.getSession().setAttribute("successMessage", "Registration successful");
+            } else {
+                request.getSession().setAttribute("errorMessage", "Participant is already registered for this formation");
             }
 
-            // Regular request handling
             response.sendRedirect("participants?action=list");
+            return;
 
         } catch (Exception e) {
-            // AJAX error response
-            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                response.getWriter().write("{\"success\": false, \"message\": \"" + e.getMessage() + "\"}");
-                return;
-            }
-
-            // Regular error handling
-            throw new ServletException(e);
+            request.getSession().setAttribute("errorMessage", "Registration failed: " + e.getMessage());
+            response.sendRedirect("participants?action=list");
         }
     }
 
-    public void deleteParticipant(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+    public void deleteParticipant(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
         int id = Integer.parseInt(request.getParameter("id"));
         participantDAO.delete(id);
         response.sendRedirect("participants?action=list");

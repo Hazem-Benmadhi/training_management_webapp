@@ -54,5 +54,31 @@ public class Formation {
     @ManyToMany(mappedBy = "formations")
     private Set<Participant> participants = new HashSet<>();
 
+    public void addParticipant(Participant participant) {
+        this.participants.add(participant);
+        participant.getFormations().add(this);
+    }
+
+    public void removeParticipant(Participant participant) {
+        this.participants.remove(participant);
+        participant.getFormations().remove(this);
+    }
+
+    public LocalDate getEndDate() {
+        return date.plusDays(duration);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Formation that = (Formation) o;
+        return id != null && id.equals(that.id);
+    }
 
 }

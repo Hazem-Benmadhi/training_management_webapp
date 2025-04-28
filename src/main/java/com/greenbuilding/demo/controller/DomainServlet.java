@@ -1,12 +1,14 @@
 package com.greenbuilding.demo.controller;
 
 import com.greenbuilding.demo.dao.DomainDAO;
+import com.greenbuilding.demo.entity.AppUser;
 import com.greenbuilding.demo.entity.Domain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
@@ -26,12 +28,24 @@ public class DomainServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+        AppUser user = (AppUser) session.getAttribute("user");
+        boolean isAdmin = "admin".equals(user.getRole().toString());
+        if (!isAdmin) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Admin access required");
+            return;
+        }
+
         String action = request.getParameter("action") == null ? "list" : request.getParameter("action");
         try {
             switch (action) {
-                case "new":
-                    showNewForm(request, response);
-                    break;
+//                case "new":
+//                    showNewForm(request, response);
+//                    break;
                 case "add":
                     addDomain(request, response);
                     break;
@@ -53,9 +67,9 @@ public class DomainServlet extends HttpServlet {
         request.getRequestDispatcher("layout.jsp").forward(request, response);
     }
 
-    public void showNewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("domain/form.jsp").forward(request,response);
-    }
+//    public void showNewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//        request.getRequestDispatcher("domain/form.jsp").forward(request,response);
+//    }
 
     public void addDomain(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Domain domain = new Domain();
@@ -66,9 +80,14 @@ public class DomainServlet extends HttpServlet {
     }
 
     public void deleteDomain(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        domainDAO.delete(id);
-        response.sendRedirect("domains?action=list");
+        try {
+            int id = Integer.parseInt(request.getParameter("id"));
+            domainDAO.delete(id);
+            response.sendRedirect("domains?action=list");
+        } catch(Exception e) {
+            request.getSession().setAttribute("errorMessage", e.getMessage() + ": you have to remove the assigned training first" );
+            response.sendRedirect("domains?action=list");
+        }
     }
 
 }

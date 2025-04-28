@@ -1,5 +1,6 @@
 package com.greenbuilding.demo.api;
 
+import com.greenbuilding.demo.entity.Employer;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Persistence;
 import java.lang.reflect.Method;
@@ -34,6 +35,7 @@ public abstract class BaseDAO<T, ID> {
             throw new RuntimeException("Error saving or updating " + entityClass.getSimpleName(), e);
         }
     }
+
 
     public T findById(ID id) {
         return entityManager.find(entityClass, id);

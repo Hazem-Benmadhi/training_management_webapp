@@ -24,13 +24,11 @@ public class Participant {
     @Column(name = "id", nullable = false, unique = true)
     private Integer id;
 
-    @Size(max = 255)
-    @NotNull
+   @NotNull
     @NotBlank(message = "Required")
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Size(max = 255)
     @NotNull
     @NotBlank(message = "Required")
     @Column(name = "last_name", nullable = false)
@@ -62,15 +60,32 @@ public class Participant {
             joinColumns = @JoinColumn(name = "idparticipant"),
             inverseJoinColumns = @JoinColumn(name = "idformation")
     )
-
     private Set<Formation> formations = new HashSet<>();
 
-    public void setEmail(String email) {
-        if (!this.email.equals(email) && !email.isEmpty()) {
-            this.email = email;
-        }else{
-            throw new RuntimeException("New email already exists");
-        }
+    public void addFormation(Formation formation) {
+        this.formations.add(formation);
+        formation.getParticipants().add(this);
     }
 
+    public void removeFormation(Formation formation) {
+        this.formations.remove(formation);
+        formation.getParticipants().remove(this);
+    }
+
+    public int countFormations() {
+        return this.formations != null ? this.formations.size() : 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Participant that = (Participant) o;
+        return id != null && id.equals(that.id);
+    }
 }

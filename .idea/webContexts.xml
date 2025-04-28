@@ -6,9 +6,21 @@
         <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/addFormation.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/addFormation.jsp" value="file://$PROJECT_DIR$/src/main/webapp" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/addParticipant.jsp" value="file://$PROJECT_DIR$/src/main/webapp" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/components/enrollment-chart.jsp" value="file://$PROJECT_DIR$/src/main/webapp/components" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/components/enrollmentTrends.jsp" value="file://$PROJECT_DIR$/src/main/webapp/components" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/components/topTrainings.jsp" value="file://$PROJECT_DIR$/src/main/webapp/components" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/domains.jsp" value="file://$PROJECT_DIR$/src/main/webapp" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/formation/form.jsp" value="file://$PROJECT_DIR$/src/main/webapp/formation" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/formation/list.jsp" value="file://$PROJECT_DIR$/src/main/webapp/formation" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/formations.jsp" value="file://$PROJECT_DIR$/src/main/webapp" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/index.jsp" value="file://$PROJECT_DIR$/src/main/webapp" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/layout.jsp" value="file://$PROJECT_DIR$/src/main/webapp" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/login.html" value="file://$PROJECT_DIR$/src/main/webapp" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/login/green-building-fancy-login.html" value="file://$PROJECT_DIR$/src/main/webapp/login" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/login_temp/login.jsp" value="file://$PROJECT_DIR$/src/main/webapp/login_temp" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/pages/dashboard.jsp" value="file://$PROJECT_DIR$/src/main/webapp/pages" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/participant/details.jsp" value="file://$PROJECT_DIR$/src/main/webapp/participant" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/users/form.jsp" value="file://$PROJECT_DIR$/src/main/webapp/users" />
       </map>
     </option>
   </component>
