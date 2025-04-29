@@ -2,8 +2,7 @@ package com.greenbuilding.demo.dao;
 
 import com.greenbuilding.demo.api.BaseDAO;
 import com.greenbuilding.demo.entity.Domain;
-
-import java.util.List;
+import jakarta.persistence.Query;
 
 public class DomainDAO extends BaseDAO<Domain, Integer> {
 
@@ -16,16 +15,11 @@ public class DomainDAO extends BaseDAO<Domain, Integer> {
         entityManager.persist(domain);
         entityManager.getTransaction().commit();
     }
-
-//    public List<Object[]> getDomainDistribution() {
-//        return entityManager.createQuery(
-//                        "SELECT d.libelle, COUNT(p) " +
-//                                "FROM Domain d " +
-//                                "JOIN Formation f ON f.domain.id = d.id " +
-//                                "JOIN Participant p ON p.formations.id = f.id " +
-//                                "GROUP BY d.libelle " +
-//                                "ORDER BY COUNT(p) DESC", Object[].class)
-//                .getResultList();
-//    }
-
+    public boolean domainExist(String libelle) {
+        Query query = entityManager.createQuery(
+                "SELECT COUNT(d) FROM Domain d WHERE d.libelle = :libelle"
+        );
+        query.setParameter("libelle", libelle);
+        return (Long) query.getSingleResult() > 0;
+    }
 }

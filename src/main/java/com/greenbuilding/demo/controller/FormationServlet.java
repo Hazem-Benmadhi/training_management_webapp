@@ -30,13 +30,9 @@ public class FormationServlet extends HttpServlet {
         trainerDAO = new TrainerDAO();
         participantDAO = new ParticipantDAO();
     }
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        doGet(request, response);
-    }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -50,7 +46,16 @@ public class FormationServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied: Admin or Simple User role required");
             return;
         }
+        super.service(request, response);
+    }
 
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doGet(request, response);
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action") == null ? "list" : request.getParameter("action");
         try {
             switch (action) {

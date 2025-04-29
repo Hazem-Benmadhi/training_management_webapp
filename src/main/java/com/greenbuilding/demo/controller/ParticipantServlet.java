@@ -32,19 +32,15 @@ public class ParticipantServlet extends HttpServlet {
         formationDAO = new FormationDAO();
         profileDAO = new ProfileDAO();
     }
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        doGet(request, response);
-    }
 
     @Override
-    protected void doGet(@org.jetbrains.annotations.NotNull HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
+
         AppUser user = (AppUser) session.getAttribute("user");
         boolean isAdmin = "admin".equals(user.getRole().toString());
         boolean isSimple = "simple".equals(user.getRole().toString());
@@ -53,7 +49,17 @@ public class ParticipantServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied: Admin or Simple User role required");
             return;
         }
+        super.service(request, response);
+    }
 
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doGet(request, response);
+    }
+
+    @Override
+    protected void doGet(@org.jetbrains.annotations.NotNull HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action") == null ? "list" : request.getParameter("action");
         try {
             switch (action) {

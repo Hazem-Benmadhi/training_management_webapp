@@ -12,15 +12,34 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
+
 @WebServlet("/domains")
 public class DomainServlet extends HttpServlet {
-
     private DomainDAO domainDAO;
 
     @Override
     public void init(){
         domainDAO = new DomainDAO();
     }
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        AppUser user = (AppUser) session.getAttribute("user");
+        boolean isAdmin = "admin".equals(user.getRole().toString());
+
+        if (!isAdmin) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied: Admin role required");
+            return;
+        }
+        super.service(request, response);
+    }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doGet(request, response);
@@ -28,24 +47,9 @@ public class DomainServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
-        AppUser user = (AppUser) session.getAttribute("user");
-        boolean isAdmin = "admin".equals(user.getRole().toString());
-        if (!isAdmin) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Admin access required");
-            return;
-        }
-
         String action = request.getParameter("action") == null ? "list" : request.getParameter("action");
         try {
             switch (action) {
-//                case "new":
-//                    showNewForm(request, response);
-//                    break;
                 case "add":
                     addDomain(request, response);
                     break;
@@ -67,14 +71,13 @@ public class DomainServlet extends HttpServlet {
         request.getRequestDispatcher("layout.jsp").forward(request, response);
     }
 
-//    public void showNewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//        request.getRequestDispatcher("domain/form.jsp").forward(request,response);
-//    }
-
     public void addDomain(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String libelle = request.getParameter("libelle");
+//        if (domainDAO.domainExist(libelle.trim().toLowerCase())) {
+//            throw new IllegalArgumentException("Profile already exists");
+//        }
         Domain domain = new Domain();
-        domain.setLibelle(request.getParameter("libelle"));
-
+        domain.setLibelle(libelle.trim());
         domainDAO.save(domain);
         response.sendRedirect("domains?action=list");
     }

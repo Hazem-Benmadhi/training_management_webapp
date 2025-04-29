@@ -27,19 +27,25 @@ public class EmployerServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
+
         AppUser user = (AppUser) session.getAttribute("user");
         boolean isAdmin = "admin".equals(user.getRole().toString());
+
         if (!isAdmin) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Admin access required");
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied: Admin role required");
             return;
         }
+        super.service(request, response);
+    }
 
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action") == null ? "list" : request.getParameter("action");
         try {
             switch (action) {
