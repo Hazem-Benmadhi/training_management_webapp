@@ -223,7 +223,7 @@
 
                 // Update form action
                 const formElement = document.getElementById("trainerForm");
-                formElement.querySelector('input[name="action"]').value = "update";
+                formElement.querySelector('input[name="action"]').value = "add";
 
                 toggleEmployerField();
             })

@@ -296,7 +296,8 @@
                                     <div class="formation-card">
                                         <h3 class="formation-title">${formation.title}</h3>
                                         <div class="formation-dates">
-                                            <i class="far fa-calendar-alt"></i> ${formation.date} - ${formation.endDate}
+                                            start : <i class="far fa-calendar-alt"></i> ${formation.date}<br>
+                                            end : <i class="far fa-calendar-alt"></i>${formation.endDate}
                                         </div>
                                         <div class="formation-meta">
                                             <div class="formation-meta-item">

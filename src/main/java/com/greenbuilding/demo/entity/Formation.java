@@ -81,4 +81,18 @@ public class Formation {
         return id != null && id.equals(that.id);
     }
 
+    @Override
+    public String toString() {
+        return "Formation{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", date=" + date + '\'' +
+                ", duration=" + duration + '\'' +
+                ", budget=" + budget + '\'' +
+                ", domain=" + domain + '\'' +
+                ", trainer=" + trainer + '\'' +
+                '}';
+    }
+
+
 }

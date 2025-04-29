@@ -99,12 +99,6 @@ public class ParticipantServlet extends HttpServlet {
         request.getRequestDispatcher("layout.jsp").forward(request, response);
     }
 
-//    private void showParticipantDetails(HttpServletRequest request, HttpServletResponse response)
-//            throws ServletException, IOException {
-//        Participant participants = participantDAO.findById(Integer.parseInt(request.getParameter("id")));
-//        request.setAttribute("participants", participants);
-//        request.getRequestDispatcher("participant/details.jsp").forward(request, response);
-//    }
 private void showParticipantDetails(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     try {
         int participantId = Integer.parseInt(request.getParameter("id"));
@@ -143,6 +137,9 @@ private void showParticipantDetails(HttpServletRequest request, HttpServletRespo
 
         Participant participant = (id != 0) ? participantDAO.findById(id) : new Participant();
 
+        System.out.println("*****************************");
+        System.out.println("participant11111" + participant);
+
         participant.setFirstName(request.getParameter("firstName"));
         participant.setLastName(request.getParameter("lastName"));
         participant.setEmail(request.getParameter("email"));
@@ -170,19 +167,14 @@ private void showParticipantDetails(HttpServletRequest request, HttpServletRespo
         }
 
         participant.setProfil(profil);
+
+        System.out.println("participant22222" + participant);
+
+
         participantDAO.saveOrUpdate(participant);
         response.sendRedirect("participants?action=list");
     }
 
-    // Still not working
-//    private void unregisterFromFormation(HttpServletRequest request, HttpServletResponse response)
-//            throws ServletException, IOException {
-//        int participantId = Integer.parseInt(request.getParameter("participantId"));
-//        int formationId = Integer.parseInt(request.getParameter("formationId"));
-//
-//        registrationDAO.unregisterParticipant(participantId, formationId);
-//        response.sendRedirect("participants?action=details");
-//    }
     private void unregisterFromFormation(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
@@ -254,11 +246,12 @@ private void showParticipantDetails(HttpServletRequest request, HttpServletRespo
     }
 
 
-    private void getParticipantJson(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
+    private void getParticipantJson(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
+        System.out.println("participantId: " + id);
+
         Participant participant = participantDAO.findById(id);
+        System.out.println("participant: " + participant);
 
         // Convert participant to JSON
         String json = String.format(
@@ -272,6 +265,8 @@ private void showParticipantDetails(HttpServletRequest request, HttpServletRespo
                 participant.getStructure().name(),
                 participant.getProfil().getLibelle()
         );
+
+        System.out.println("json format" + json);
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

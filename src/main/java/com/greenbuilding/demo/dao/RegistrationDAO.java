@@ -67,20 +67,6 @@ public class RegistrationDAO {
         }
     }
 
-//    public void unregisterParticipant(int idParticipant, int idFormation) {
-//        entityManager.getTransaction().begin();
-//
-//        Participant participant = entityManager.find(Participant.class, idParticipant);
-//        Formation formation = entityManager.find(Formation.class, idFormation);
-//
-//        if (participant != null && formation != null) {
-//            participant.getFormations().remove(formation);
-//            entityManager.merge(participant);
-//        }
-//
-//        entityManager.getTransaction().commit();
-//    }
-
     public boolean removeParticipantFromFormation(Participant participant, Formation formation) {
         try {
             entityManager.getTransaction().begin();

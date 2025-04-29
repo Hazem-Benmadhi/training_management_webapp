@@ -269,7 +269,8 @@
 
         // Update form action
         const formElement = document.getElementById("participantForm");
-        formElement.querySelector('input[name="action"]').value = "update";
+        formElement.querySelector('input[name="action"]').value = "add";
+        console.log("participant id : " + participantId);
 
         fetch('participants?action=edit&id=' + participantId)
             .then(response => {
@@ -277,6 +278,7 @@
                 return response.json();
             })
             .then(data => {
+                console.log("data : " , data);
                 document.getElementById("participantId").value = data.id;
                 document.getElementById("firstName").value = data.firstName;
                 document.getElementById("lastName").value = data.lastName;
@@ -313,5 +315,6 @@
         document.getElementById('registrationParticipantId').value = participantId;
     }
 </script>
+
 </body>
 </html>

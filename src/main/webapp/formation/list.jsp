@@ -231,7 +231,7 @@
 
               // Update form action
               const formElement = document.getElementById("formationForm");
-              formElement.querySelector('input[name="action"]').value = "update";
+              formElement.querySelector('input[name="action"]').value = "add";
 
               document.getElementById("formationModalLabel").innerText = "Edit Formation";
             })

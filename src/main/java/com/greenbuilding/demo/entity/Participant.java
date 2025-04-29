@@ -88,4 +88,17 @@ public class Participant {
         Participant that = (Participant) o;
         return id != null && id.equals(that.id);
     }
+
+    @Override
+    public String toString() {
+        return "Participant{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", structure=" + structure + '\'' +
+                ", profil=" + profil + '\'' +
+                ", email='" + email + '\'' +
+                ", tel='" + tel + '\'' +
+                '}';
+    }
 }

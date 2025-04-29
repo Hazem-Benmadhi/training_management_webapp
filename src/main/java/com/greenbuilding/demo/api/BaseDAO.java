@@ -1,6 +1,5 @@
 package com.greenbuilding.demo.api;
 
-import com.greenbuilding.demo.entity.Employer;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Persistence;
 import java.lang.reflect.Method;
