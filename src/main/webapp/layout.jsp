@@ -105,11 +105,13 @@
       </li>
     </c:if>
 
-    <li class="nav-item">
-      <a class="nav-link ${pageContext.request.servletPath == '/reports' ? 'active' : ''}" href="#">
-        <i class="fas fa-chart-bar"></i> <span>Reports</span>
-      </a>
-    </li>
+    <c:if test="${user.role == 'admin' || user.role == 'responsible'}">
+      <li class="nav-item">
+        <a class="nav-link ${pageContext.request.servletPath == '/reports' ? 'active' : ''}" href="exportReport">
+          <i class="fas fa-chart-bar"></i> <span>Reports</span>
+        </a>
+      </li>
+    </c:if>
 
     <li class="nav-item mt-auto logout-item">
       <a class="nav-link" href="${pageContext.request.contextPath}/logout">

@@ -73,9 +73,6 @@ public class DomainServlet extends HttpServlet {
 
     public void addDomain(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String libelle = request.getParameter("libelle");
-//        if (domainDAO.domainExist(libelle.trim().toLowerCase())) {
-//            throw new IllegalArgumentException("Profile already exists");
-//        }
         Domain domain = new Domain();
         domain.setLibelle(libelle.trim());
         domainDAO.save(domain);
