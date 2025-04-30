@@ -15,8 +15,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @WebServlet("/dashboard/*")
@@ -55,14 +53,6 @@ public class DashboardServlet extends HttpServlet {
             em = emf.createEntityManager();
             DashboardService dashboardService = new DashboardService(em);
 
-            String path = request.getPathInfo();
-
-            // handle Calendar event
-            if ("/api/calendarEvents".equals(path)) {
-                handleCalendarEvents(request, response, dashboardService);
-                return;
-            }
-
             // Handle AJAX request for enrollment trend data
             if ("enrollmentTrend".equals(request.getParameter("action"))){
                 handleAjaxRequest(request, response, dashboardService);
@@ -84,43 +74,6 @@ public class DashboardServlet extends HttpServlet {
             if (em != null && em.isOpen()) em.close();
         }
     }
-
-
-    private void handleCalendarEvents(HttpServletRequest request, HttpServletResponse response, DashboardService dashboardService) throws IOException {
-        int year, month;
-
-        try {
-            year = Integer.parseInt(request.getParameter("year"));
-            month = Integer.parseInt(request.getParameter("month"));
-        } catch (NumberFormatException e) {
-            // Default to current year/month
-            LocalDate now = LocalDate.now();
-            year = now.getYear();
-            month = now.getMonthValue();
-        }
-
-        List<Map<String, Object>> events = dashboardService.getTrainingCalendarData(year, month);
-
-        // Convert to Webix format (id, text, start_date, end_date)
-        List<Map<String, Object>> formattedEvents = new ArrayList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-        for (Map<String, Object> event : events) {
-            LocalDate date = (LocalDate) event.get("date");
-
-            Map<String, Object> formatted = new HashMap<>();
-            formatted.put("id", event.get("id"));
-            formatted.put("text", event.get("title"));
-            formatted.put("start_date", date.atTime(9, 0).format(formatter));  // example: 9AM
-            formatted.put("end_date", date.atTime(11, 0).format(formatter));   // example: 11AM
-            formattedEvents.add(formatted);
-        }
-
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(new Gson().toJson(formattedEvents));
-    }
-
 
     private boolean isAjax(HttpServletRequest request) {
         return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
@@ -202,65 +155,11 @@ public class DashboardServlet extends HttpServlet {
         // Get participant profile distribution
         request.setAttribute("profileDistribution", dashboardService.getParticipantProfileDistribution());
 
-        // Get calendar data
-        CalendarData calendarData = getCalendarData(request);
-        request.setAttribute("calendarDate", calendarData.date);
-        request.setAttribute("currentYear", calendarData.year);
-        request.setAttribute("currentMonth", calendarData.month);
-        request.setAttribute("daysInMonth", calendarData.daysInMonth);
-        request.setAttribute("firstDayOfWeek", calendarData.firstDayOfWeek);
-        request.setAttribute("prevYear", calendarData.prevYear);
-        request.setAttribute("prevMonth", calendarData.prevMonth);
-        request.setAttribute("nextYear", calendarData.nextYear);
-        request.setAttribute("nextMonth", calendarData.nextMonth);
-
-        // Get training events for the calendar
-        request.setAttribute("calendarEvents", dashboardService.getTrainingCalendarData(calendarData.year, calendarData.month));
-
         // Get budget overview data
         request.setAttribute("budgetData", dashboardService.getBudgetOverviewData());
 
         // Set JSP components
         setJspComponents(request);
-    }
-    private void handleError(HttpServletRequest request, HttpServletResponse response, Exception e)
-            throws IOException, ServletException {
-        getServletContext().log("Dashboard Error", e);
-        request.setAttribute("error", "An error occurred. Please try again.");
-        response.sendRedirect(request.getContextPath() + "/error.jsp");
-    }
-
-    private CalendarData getCalendarData(HttpServletRequest request) {
-        Calendar cal = Calendar.getInstance();
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH) + 1; // Calendar month is 0-based
-
-        // Allow overriding year and month from request parameters
-        String yearParam = request.getParameter("year");
-        String monthParam = request.getParameter("month");
-
-        if (yearParam != null && !yearParam.isEmpty()) {
-            year = Integer.parseInt(yearParam);
-        }
-        if (monthParam != null && !monthParam.isEmpty()) {
-            month = Integer.parseInt(monthParam);
-        }
-
-        cal.set(year, month - 1, 1);
-        int daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-        int firstDayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
-
-        return new CalendarData(
-                cal.getTime(),
-                year,
-                month,
-                daysInMonth,
-                firstDayOfWeek,
-                month == 1 ? year - 1 : year,
-                month == 1 ? 12 : month - 1,
-                month == 12 ? year + 1 : year,
-                month == 12 ? 1 : month + 1
-        );
     }
 
     private void setJspComponents(HttpServletRequest request) {
@@ -268,13 +167,7 @@ public class DashboardServlet extends HttpServlet {
         request.setAttribute("enrollTrends", "/components/enrollmentTrends.jsp");
         request.setAttribute("trainingCom", "/components/topTrainings.jsp");
         request.setAttribute("participantProfile", "/components/profileChart.jsp");
-        request.setAttribute("trainingCal", "/components/trainingCalendar.jsp");
         request.setAttribute("budgetOver", "/components/budgetOverview.jsp");
-    }
-
-    private void handleError(HttpServletRequest request, Exception e) {
-        request.setAttribute("error", "Failed to load dashboard data: " + e.getMessage());
-        getServletContext().log("Dashboard error", e);
     }
 
     @Override
@@ -284,8 +177,4 @@ public class DashboardServlet extends HttpServlet {
         }
     }
 
-    // Helper class for calendar data
-        private record CalendarData(Object date, int year, int month, int daysInMonth, int firstDayOfWeek, int prevYear,
-                                    int prevMonth, int nextYear, int nextMonth) {
-    }
 }

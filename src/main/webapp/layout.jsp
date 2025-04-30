@@ -99,16 +99,8 @@
 
     <c:if test="${user.role == 'admin' || user.role == 'responsible'}">
       <li class="nav-item">
-        <a class="nav-link ${pageContext.request.servletPath == '/calendar' ? 'active' : ''}" href="#">
-          <i class="fas fa-calendar-alt"></i> <span>Calendar</span>
-        </a>
-      </li>
-    </c:if>
-
-    <c:if test="${user.role == 'admin' || user.role == 'responsible'}">
-      <li class="nav-item">
         <a class="nav-link ${pageContext.request.servletPath == '/reports' ? 'active' : ''}" href="exportReport">
-          <i class="fas fa-chart-bar"></i> <span>Reports</span>
+          <i class="fas fa-chart-bar"></i> <span>Download Reports</span>
         </a>
       </li>
     </c:if>

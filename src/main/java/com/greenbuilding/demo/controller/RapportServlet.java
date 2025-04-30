@@ -28,16 +28,17 @@ public class RapportServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-
         AppUser user = (AppUser) session.getAttribute("user");
         boolean isAdmin = "admin".equals(user.getRole().toString());
+        boolean isResponsible = "responsible".equals(user.getRole().toString());
 
-        if (!isAdmin) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied: Admin role required");
+        if (!isAdmin && !isResponsible) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied: Admin or Responsible role required");
             return;
         }
         super.service(request, response);
     }
+
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
