@@ -47,11 +47,16 @@ public class UserServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             req.setAttribute("users", appUserDAO.findAll());
+
+            // Check if it's an AJAX request
             String xRequestedWith = req.getHeader("X-Requested-With");
             boolean isAjaxRequest = "XMLHttpRequest".equals(xRequestedWith);
+
             if (isAjaxRequest) {
+                // For AJAX requests, return just the users page content
                 req.getRequestDispatcher("users/list.jsp").forward(req, resp);
             } else {
+                // For normal requests, use the layout
                 req.setAttribute("pageContent", "users/list.jsp");
                 req.getRequestDispatcher("layout.jsp").forward(req, resp);
             }

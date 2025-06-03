@@ -1,5 +1,5 @@
 :root {
-    --primary: #3498db;
+    --primary: #2e7d32;
     --secondary: #2c3e50;
     --success: #2ecc71;
     --info: #9b59b6;
@@ -219,7 +219,6 @@ table {
     }
 }
 
-/* Animation for hover effect */
 @keyframes pulse {
     0% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.05); opacity: 0.8; }
@@ -229,9 +228,6 @@ table {
 .pulse-on-hover:hover {
     animation: pulse 2s infinite;
 }
-
-/******************************************************************************/
-
 
 .stats-card {
     text-align: center;
@@ -348,8 +344,6 @@ table {
 .bg-soft-warning { background-color: rgba(243, 156, 18, 0.1); }
 .bg-soft-danger { background-color: rgba(231, 76, 60, 0.1); }
 
-/**********************************************************/
-
 .topbar {
     background: white;
     height: 70px;
@@ -379,24 +373,11 @@ table {
     font-weight: 600;
 }
 
-/* Sidebar logout button styling */
 .logout-item {
     margin-top: auto !important;
     margin-bottom: 20px;
 }
 
-/*.logout-item .nav-link {*/
-/*    color: #fff;*/
-/*    transition: all 0.3s;*/
-/*}*/
-
-/*.logout-item .nav-link:hover {*/
-/*    color: #f8f9fa;*/
-/*    background-color: rgba(255, 255, 255, 0.1);*/
-/*    padding-left: 20px;*/
-/*}*/
-
-/* Footer Styles */
 .footer {
     position: fixed;
     bottom: 0;

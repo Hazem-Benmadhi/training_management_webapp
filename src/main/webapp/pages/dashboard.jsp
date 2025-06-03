@@ -99,11 +99,11 @@
         </c:if>
 
         <c:if test="${user.role == 'admin' || user.role == 'responsible'}">
-        <li class="nav-item">
-            <a class="nav-link ${pageContext.request.servletPath == '/reports' ? 'active' : ''}" href="exportReport">
-                <i class="fas fa-chart-bar"></i> <span>Download Reports</span>
-            </a>
-        </li>
+            <li class="nav-item">
+                <a class="nav-link ${pageContext.request.servletPath == '/reports' ? 'active' : ''}" href="exportReport">
+                    <i class="fas fa-chart-bar"></i> <span>Download Reports</span>
+                </a>
+            </li>
         </c:if>
 
         <li class="nav-item mt-auto logout-item">
@@ -127,6 +127,11 @@
 
     <!-- Dashboard Content -->
     <div class="dashboard-content p-3">
+        <!-- Main Content Section -->
+        <div class="main-component">
+            <jsp:include page="${mainContent}"/>
+        </div>
+
         <!-- Stats Cards Row -->
         <div class="row g-3 mb-4">
             <div class="col-12">
@@ -146,34 +151,22 @@
         </div>
 
         <!-- Second Row - Two Equal Components -->
-        <div class="row g-3 mb-4">
-            <!-- Top Trainings -->
+        <div class="row">
             <div class="col-md-6">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <jsp:include page="${trainingCom}"/>
-                    </div>
-                </div>
+                <%-- Top Training --%>
+                <jsp:include page="${trainingCom}"/>
             </div>
-
-            <!-- Participant Profiles -->
             <div class="col-md-6">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <jsp:include page="${participantProfile}"/>
-                    </div>
-                </div>
+                <%-- Participant profile --%>
+                <jsp:include page="${participantProfile}"/>
             </div>
         </div>
 
         <!-- Third Row - Budget Overview -->
-        <div class="row g-3">
-            <div class="col-md-6 mx-auto">
-                <div class="card">
-                    <div class="card-body">
-                        <jsp:include page="${budgetOver}"/>
-                    </div>
-                </div>
+        <div class="row">
+            <div class="col-md-4">
+                <%--Budget Overview--%>
+                <jsp:include page="${budgetOver}"/>
             </div>
         </div>
     </div>

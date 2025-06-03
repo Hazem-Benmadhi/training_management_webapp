@@ -55,7 +55,6 @@ public class EmployerServlet extends HttpServlet {
                 case "delete":
                     deleteEmployer(request, response);
                     break;
-                case "list":
                 default:
                     listEmployers(request, response);
                     break;

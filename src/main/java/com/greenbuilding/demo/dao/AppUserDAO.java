@@ -23,6 +23,7 @@ public class AppUserDAO extends BaseDAO<AppUser, Integer> {
         AppUser user = new AppUser();
         user.setLogin(username);
         user.setPassword(password);
+
         user.setRole(role);
 
         entityManager.getTransaction().begin();

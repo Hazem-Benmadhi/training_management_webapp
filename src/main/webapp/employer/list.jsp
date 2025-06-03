@@ -11,7 +11,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      /*--primary-color: #3949ab;*/
       --primary-color: #4caf50;
       --accent-color: #ff6e40;
       --light-bg: #f5f7fa;
@@ -235,6 +234,7 @@
       </div>
     </div>
   </div>
+</c:if>
 
   <!-- JavaScript for Modal Edit Functionality -->
   <script>
@@ -252,6 +252,5 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</c:if>
 </body>
 </html>

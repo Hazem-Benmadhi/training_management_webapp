@@ -84,7 +84,6 @@ public class FormationServlet extends HttpServlet {
         request.setAttribute("pageContent", "formation/list.jsp");
         request.setAttribute("pageTitle", "Formation Management");
         request.getRequestDispatcher("layout.jsp").forward(request, response);
-
     }
 
     public void addEditFormation(HttpServletRequest request, HttpServletResponse response) throws IOException {

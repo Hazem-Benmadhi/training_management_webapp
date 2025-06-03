@@ -45,7 +45,7 @@
         }
         .modal-confirm .modal-content {
             padding: 0;
-            border-radius: 50px;
+            border-radius: 20px;
             border: none;
         }
         .modal-confirm .modal-header {
@@ -100,6 +100,7 @@
             background: #eee;
         }
     </style>
+
 </head>
 <body>
 <c:if test="${user.role eq 'admin'}">
@@ -212,7 +213,6 @@
 
 <script>
     $(document).ready(function() {
-        // Configure toastr notifications
         toastr.options = {
             "closeButton": true,
             "debug": false,
@@ -221,9 +221,9 @@
             "positionClass": "toast-top-right",
             "preventDuplicates": false,
             "onclick": null,
-            "showDuration": "300",
+            "showDuration": "2000",
             "hideDuration": "1000",
-            "timeOut": "5000",
+            "timeOut": "3000",
             "extendedTimeOut": "1000",
             "showEasing": "swing",
             "hideEasing": "linear",
@@ -231,9 +231,13 @@
             "hideMethod": "fadeOut"
         };
 
+
         // Create new user
         $('#userForm').submit(function(e) {
             e.preventDefault();
+
+            // Disable form during submission to prevent duplicate submits
+            $(this).find('button[type="submit"]').prop('disabled', true);
 
             $.ajax({
                 url: 'users?action=create',
@@ -242,17 +246,10 @@
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
-                        // Close modal and clear form
-                        $('#newUserModal').modal('hide');
-                        $('#userForm')[0].reset();
-
-                        // Show success message
-                        toastr.success(response.message);
-
-                        // Reload the user list without full page refresh
-                        loadUsers();
+                        location.reload();
                     } else {
                         toastr.error(response.message);
+                        $('#userForm').find('button[type="submit"]').prop('disabled', false);
                     }
                 },
                 error: function(xhr) {
@@ -261,6 +258,7 @@
                         errorMsg = xhr.responseJSON.message;
                     }
                     toastr.error(errorMsg);
+                    $('#userForm').find('button[type="submit"]').prop('disabled', false);
                 }
             });
         });
@@ -329,6 +327,9 @@
             const userId = $(this).data('userid');
             const userCard = $(`.user-item[data-userid="${userId}"]`);
 
+            // Hide modal first
+            $('#deleteConfirmModal').modal('hide');
+
             $.ajax({
                 url: 'users',
                 type: 'POST',
@@ -338,25 +339,22 @@
                 },
                 dataType: 'json',
                 success: function(response) {
-                    // Hide the modal
-                    $('#deleteConfirmModal').modal('hide');
-
                     if (response.success) {
-                        // Remove the user card from the DOM with animation
-                        userCard.fadeOut(300, function() {
-                            $(this).remove();
-                        });
+                        if (userCard.length) {
+                            userCard.css('display', 'none');
+                            setTimeout(() => userCard.remove(), 300);
+                        } else {
+                            loadUsers();
+                        }
                         toastr.success(response.message);
                     } else {
                         toastr.warning(response.message);
-                        loadUsers(); // Reset to current state
+                        loadUsers();
                     }
                 },
                 error: function(xhr) {
-                    // Hide the modal
-                    $('#deleteConfirmModal').modal('hide');
                     handleAjaxError(xhr);
-                    loadUsers(); // Reset to current state
+                    loadUsers();
                 }
             });
         });
@@ -376,20 +374,17 @@
                 type: 'GET',
                 dataType: 'html',
                 success: function(data) {
-                    // Extract just the users container HTML from the response
                     let tempDiv = $('<div>').html(data);
                     let newUsers = tempDiv.find('#users-container').html();
 
                     if (newUsers) {
                         $('#users-container').html(newUsers);
                     } else {
-                        // Fallback to full page reload if extraction fails
                         location.reload();
                     }
                 },
                 error: function() {
                     toastr.error('Failed to refresh user data');
-                    // Fallback to full page reload
                     location.reload();
                 }
             });
